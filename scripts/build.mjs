@@ -200,5 +200,5 @@ console.log(`
     Firefox  about:debugging#/runtime/this-firefox -> Load Temporary Add-on -> dist/firefox/manifest.json
 
   Firefox also needs permission granted: about:addons -> this extension -> Permissions
-  -> allow ikariam.gameforge.com, or the redirects will not fire.
+  -> allow ikariam.gameforge.com and gfsrv.net, or the redirects will not fire.
 `);

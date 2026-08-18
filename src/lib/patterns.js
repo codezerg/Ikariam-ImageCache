@@ -72,3 +72,31 @@ export function urlFilterFor(url)
 {
     return new URL(url).pathname;
 }
+
+/**
+ * The two domains the game serves images from: its own world servers, and the
+ * shared Gameforge CDN that carries the runtime-injected artwork.
+ */
+export const CACHED_DOMAINS = [
+    "ikariam.gameforge.com",
+    "gfsrv.net",
+];
+
+/**
+ * Which domain a DNR rule should match on. Ikariam serves the same asset from
+ * every world server, and its CDN from gf1/gf2/gf3 interchangeably, so we match
+ * the parent domain rather than the host that happened to be in the safe list.
+ * requestDomains covers subdomains, so "gfsrv.net" catches all three CDN hosts.
+ */
+export function requestDomainFor(url)
+{
+    const host = new URL(url).hostname;
+    for (const domain of CACHED_DOMAINS)
+    {
+        if (host === domain || host.endsWith(`.${domain}`))
+        {
+            return domain;
+        }
+    }
+    return host;
+}

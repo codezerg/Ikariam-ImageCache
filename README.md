@@ -93,8 +93,9 @@ The redirect happens in the network layer, before any request leaves the
 browser. It does not depend on the HTTP cache, so nothing expires and no
 handshake happens.
 
-Rules match on path plus `requestDomains: ikariam.gameforge.com`, so one build
-works on every server and language — s74-en, s12-de, and the rest.
+Rules match on path plus a `requestDomains` condition — `ikariam.gameforge.com`
+for the skin, `gfsrv.net` for the shared Gameforge CDN — so one build works on
+every server and language: s74-en, s12-de, and the rest.
 
 ### Why not just rewrite the cache headers?
 
@@ -165,8 +166,8 @@ npm run discover -- --server=https://s12-de.ikariam.gameforge.com --lang=de
 
 > **Firefox only:** MV3 host permissions are opt-in. After installing, open the
 > extension in `about:addons` -> Permissions and allow access to
-> `ikariam.gameforge.com`, or the redirect rules will not fire. Chrome grants
-> host permissions at install.
+> `ikariam.gameforge.com` and `gfsrv.net`, or the redirect rules will not fire.
+> Chrome grants host permissions at install.
 
 ### Verifying it works
 
@@ -215,8 +216,10 @@ version parameter, so they are stable.
 
 The extension also carries a content script that records every image the game
 loads at runtime, catching assets the stylesheets never declare (JS-injected
-ones). The popup lists them and exports an updated `safelist.json` via
-**Download safe list**; drop it in the repo root and re-run `scrape` + `build`.
+ones) and the ones served from Gameforge's shared CDN at `gf1-3.geo.gfsrv.net`,
+which the skin stylesheets never mention. The popup lists them and exports an
+updated `safelist.json` via **Download safe list**; drop it in the repo root and
+re-run `scrape` + `build`. The safe list ships 1384 images today.
 
 ## Replacing images
 

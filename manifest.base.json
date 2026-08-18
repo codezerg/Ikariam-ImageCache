@@ -14,7 +14,8 @@
     "declarativeNetRequestWithHostAccess"
   ],
   "host_permissions": [
-    "*://*.ikariam.gameforge.com/*"
+    "*://*.ikariam.gameforge.com/*",
+    "*://*.gfsrv.net/*"
   ],
   "content_scripts": [
     {

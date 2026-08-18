@@ -8,7 +8,7 @@ import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { existsSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
-import { isDenied, localPathFor, normalizeUrl, urlFilterFor } from "../src/lib/patterns.js";
+import { isDenied, localPathFor, normalizeUrl, requestDomainFor, urlFilterFor } from "../src/lib/patterns.js";
 import { die, guard, requireNode, fetchRetry, mb, progress } from "./lib.mjs";
 
 requireNode();
@@ -148,7 +148,7 @@ const rules = jobs
         action: { type: "redirect", redirect: { extensionPath: `/${j.path}` } },
         condition: {
             urlFilter: urlFilterFor(j.url),
-            requestDomains: ["ikariam.gameforge.com"],
+            requestDomains: [requestDomainFor(j.url)],
             resourceTypes: ["image", "other"],
         },
     }));
