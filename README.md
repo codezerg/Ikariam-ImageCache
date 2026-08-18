@@ -258,6 +258,25 @@ All handled by `scripts/build.mjs`; the source is identical for both targets.
 API calls go through `webextension-polyfill`, so the source uses promise-based
 `browser.*` on both.
 
+## Code style
+
+This repository follows [SIMPLE_JAVASCRIPT_STANDARD.txt](SIMPLE_JAVASCRIPT_STANDARD.txt) —
+a deliberately restricted subset of JavaScript, chosen so that code looks the
+same regardless of who wrote it.
+
+```bash
+npm run lint     # check
+npm run format   # apply
+```
+
+ESLint enforces both halves: the language restrictions (no `var`, strict
+equality, no nested ternaries, no `eval`, no undefined references) and the house
+formatting (Allman braces, four spaces, double quotes, semicolons). Formatting
+is settled by the tool, not by argument.
+
+Prettier is deliberately not used — it has no brace-style option and cannot
+produce Allman, so ESLint Stylistic is the formatting authority instead.
+
 ## License
 
 Source code is MIT — see [LICENSE](LICENSE).

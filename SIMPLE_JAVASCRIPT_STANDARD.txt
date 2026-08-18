@@ -1,0 +1,555 @@
+SIMPLE JAVASCRIPT STANDARD
+==========================
+
+PURPOSE
+-------
+This standard defines a deliberately restricted subset of modern JavaScript for team projects.
+
+The goal is not to use every JavaScript feature. The goal is predictable, explicit, easy-to-review code that looks similar regardless of who wrote it.
+
+Core philosophy:
+- Prefer one obvious way to write something.
+- Prefer boring code over clever code.
+- Prefer explicit behavior over hidden behavior.
+- Readability is more important than saving lines.
+- A feature being available does not mean the team should use it.
+
+
+1. RUNTIME
+----------
+- Use one company-approved modern Node.js LTS version.
+- Projects should not independently choose different Node.js versions without a compatibility reason.
+- Do not freeze projects on obsolete Node.js versions just to reduce language features.
+- Runtime policy and language-subset policy are separate concerns.
+
+
+2. MODULES
+----------
+Use ES modules only.
+
+Preferred:
+
+    import { readFile } from "node:fs/promises";
+
+    export function loadConfig()
+    {
+        ...
+    }
+
+Do not use:
+
+    require(...)
+    module.exports
+    exports.foo = ...
+
+
+3. VARIABLES
+------------
+- Use const by default.
+- Use let only when reassignment is required.
+- Never use var.
+- Never create implicit globals.
+
+Preferred:
+
+    const name = "John";
+
+    let total = 0;
+
+    for (const item of items)
+    {
+        total += item.price;
+    }
+
+
+4. EQUALITY
+-----------
+Always use strict equality:
+
+    ===
+    !==
+
+Never use:
+
+    ==
+    !=
+
+Do not depend on JavaScript coercion for equality.
+
+
+5. TYPE COERCION
+----------------
+Avoid implicit coercion when the intended type matters.
+
+Prefer explicit conversion:
+
+    const count = Number(value);
+    const text = String(value);
+
+Code should not require knowledge of JavaScript coercion tricks to understand its result.
+
+
+6. BOOLEAN CONDITIONS
+---------------------
+Direct boolean checks are encouraged:
+
+    if (user.isActive)
+    {
+        ...
+    }
+
+When checking a specific state, check it explicitly.
+
+Prefer:
+
+    if (name !== "")
+    {
+        ...
+    }
+
+instead of relying on truthiness when an empty string is specifically what matters.
+
+Prefer:
+
+    if (user !== null)
+    {
+        ...
+    }
+
+when null is specifically what is being tested.
+
+
+7. NULL AND UNDEFINED
+---------------------
+- Use null intentionally to represent "no value" in application APIs controlled by the team.
+- Treat undefined primarily as a JavaScript/runtime/library boundary condition.
+- Do not casually use null and undefined as interchangeable representations of the same application state.
+- Follow external APIs when their semantics require undefined.
+
+Example:
+
+    function findUser(id)
+    {
+        const user = users.get(id);
+
+        if (user === undefined)
+        {
+            return null;
+        }
+
+        return user;
+    }
+
+
+8. FUNCTIONS
+------------
+Use function declarations for normal named functions.
+
+Preferred:
+
+    function calculateTotal(items)
+    {
+        ...
+    }
+
+Avoid using arrow-function variables for normal named application functions:
+
+    const calculateTotal = (items) => ...
+
+Use arrow functions primarily for short callbacks:
+
+    users.filter(x => x.active);
+
+If a callback becomes substantial, move it into a named function.
+
+
+9. CONTROL FLOW
+---------------
+Prefer ordinary control flow:
+
+    if
+    else
+    switch
+    for
+    for...of
+    while
+
+Early returns are encouraged when they reduce nesting.
+
+Example:
+
+    function processUser(user)
+    {
+        if (user === null)
+        {
+            return;
+        }
+
+        if (!user.active)
+        {
+            return;
+        }
+
+        sendUser(user);
+    }
+
+Avoid deeply nested control flow.
+
+
+10. TERNARY EXPRESSIONS
+-----------------------
+Simple ternaries are allowed:
+
+    const status = active ? "active" : "inactive";
+
+Nested ternaries are not allowed.
+
+Use if/else or a named function instead.
+
+
+11. LOGICAL-OPERATOR TRICKS
+---------------------------
+Do not use logical operators as substitutes for ordinary control flow when they hide intent.
+
+Avoid:
+
+    user && user.active && send(user);
+
+Prefer:
+
+    if (user !== null && user.active)
+    {
+        send(user);
+    }
+
+Do not optimize for the fewest characters.
+
+
+12. LOOPS AND COLLECTIONS
+-------------------------
+Use for...of for normal iteration.
+
+Use map for transformation:
+
+    const names = users.map(x => x.name);
+
+Use filter for selection:
+
+    const activeUsers = users.filter(x => x.active);
+
+Use find for lookup:
+
+    const user = users.find(x => x.id === id);
+
+Use some/every for predicates.
+
+reduce is discouraged when an ordinary loop is easier to understand.
+
+Prefer explicit accumulation when clearer:
+
+    let total = 0;
+
+    for (const item of items)
+    {
+        total += item.price;
+    }
+
+
+13. OBJECTS
+-----------
+Use plain objects for ordinary data.
+
+    const customer = {
+        id: 10,
+        name: "John"
+    };
+
+Do not introduce classes merely to hold data.
+
+Avoid dynamically changing object shape or behavior when a straightforward design is available.
+
+
+14. CLASSES
+-----------
+- Classes are allowed when they genuinely represent stateful behavior.
+- Prefer composition over inheritance.
+- Avoid class hierarchies.
+- Do not extend built-in JavaScript classes without a strong technical reason.
+- Do not use prototype manipulation as application architecture.
+- Do not monkey patch classes, libraries, built-ins, or global objects.
+
+
+15. PROPERTIES
+--------------
+Ordinary properties should behave like ordinary data.
+
+Avoid getters/setters that perform surprising work, I/O, expensive computation, network access, logging, or significant state changes.
+
+Code such as:
+
+    user.name
+
+should not unexpectedly perform complicated operations.
+
+Use explicit methods when meaningful behavior is involved.
+
+
+16. DESTRUCTURING
+-----------------
+Simple destructuring is allowed:
+
+    const { id, name } = customer;
+
+Avoid deeply nested destructuring.
+
+Use intermediate variables when accessing data through several nested levels.
+
+
+17. OPTIONAL CHAINING
+---------------------
+Straightforward optional chaining is allowed:
+
+    const city = customer.address?.city;
+
+Avoid long chains such as:
+
+    foo?.bar?.baz?.items?.[0]?.value?.toString?.()
+
+Break complicated state handling into explicit steps.
+
+
+18. ASYNC CODE
+--------------
+Use async/await for asynchronous application code.
+
+Preferred:
+
+    async function loadUser(id)
+    {
+        const response = await fetch(...);
+        return await response.json();
+    }
+
+Avoid long .then()/.catch() chains in normal application code.
+
+Do not mix asynchronous styles without a specific reason.
+
+
+19. ERRORS AND THROW
+--------------------
+Exceptions are for exceptional conditions.
+
+Expected outcomes should normally be ordinary return values.
+
+A normal lookup that finds nothing may return null rather than throw.
+
+Always throw Error objects:
+
+    throw new Error("Invalid internal state.");
+
+Never throw arbitrary values:
+
+    throw "error";
+    throw 123;
+    throw { message: "error" };
+
+Do not use exceptions for ordinary control flow.
+
+Avoid unnecessary custom exception hierarchies.
+
+Catch errors when code can meaningfully handle them or at an appropriate application boundary.
+
+
+20. INHERITANCE
+---------------
+Prefer composition.
+
+Inheritance should be uncommon and require a clear reason.
+
+Do not build deep inheritance trees.
+
+
+21. DYNAMIC LANGUAGE FEATURES
+-----------------------------
+Do not use:
+- eval
+- with
+- Function(...) for dynamically generated executable code
+- Proxy for normal application architecture
+- prototype modification
+- monkey patching
+- runtime metaprogramming when ordinary functions/objects solve the problem
+
+Infrastructure code may receive explicit exceptions when genuinely required and isolated from ordinary application code.
+
+
+22. LABELS AND COMMA OPERATOR
+-----------------------------
+- Do not use statement labels for application control flow.
+- Do not use the comma operator to combine operations.
+- Prefer ordinary statements.
+
+
+23. REGULAR EXPRESSIONS
+-----------------------
+Regular expressions are allowed.
+
+Complex expressions should be isolated, named, and documented when their purpose is not obvious.
+
+Do not replace straightforward string operations with complicated regex merely to reduce code size.
+
+
+24. MAGIC
+---------
+Avoid hidden application behavior, including:
+- automatic registration through surprising side effects
+- monkey patching
+- global mutable state
+- unexpected initialization triggered by imports
+- runtime code generation
+- complicated metaprogramming
+- unexpected property getters
+- hidden dependency discovery
+
+Prefer explicit initialization and explicit dependencies.
+
+Importing a module should not unexpectedly modify unrelated global application behavior.
+
+
+25. GLOBAL STATE
+----------------
+Avoid mutable global state.
+
+Constants and immutable configuration are acceptable.
+
+Shared mutable application state should have a clear owner and explicit access path.
+
+
+26. DEPENDENCIES
+----------------
+Do not add packages for trivial functionality that standard JavaScript or Node.js APIs already provide clearly.
+
+Dependencies should provide meaningful value.
+
+Avoid overlapping libraries that solve the same problem in different styles.
+
+Prefer one team-standard solution for each common concern.
+
+
+27. COMMENTS
+------------
+Comments should explain:
+- why
+- constraints
+- assumptions
+- non-obvious decisions
+
+Do not write comments that merely repeat the code.
+
+Prefer clear code over comments explaining unnecessarily clever code.
+
+
+28. FORMATTING
+--------------
+Use ESLint Stylistic as the formatting authority.
+
+Developers should not debate formatting decisions that the formatter can make.
+
+Do not manually format code against the configured formatter.
+
+Formatting should be enforced automatically in CI.
+
+House style, applied automatically by the formatter:
+- Allman braces (the opening brace goes on its own line)
+- 4-space indentation
+- Double quotes
+- Semicolons
+- Trailing commas in multi-line literals
+- Braces on every control-flow block, including single statements
+
+Prettier is deliberately not used. Prettier has no brace-style option and can
+only emit the opening brace on the same line, so it cannot produce the Allman
+style this standard is written in. ESLint Stylistic can, and applies it with
+--fix, which keeps the intent of this section: formatting is settled by a tool,
+not by argument.
+
+
+29. LINTING
+-----------
+Use ESLint to enforce this standard wherever practical.
+
+Important restrictions should be automated instead of depending only on code review.
+
+Examples:
+- no var
+- strict equality
+- no eval
+- no implicit globals
+- no nested ternaries
+- no unused variables
+- no unreachable code
+
+Rules designated as part of the team standard should fail CI.
+
+
+30. LANGUAGE VERSION
+--------------------
+Do not intentionally freeze JavaScript to an obsolete runtime/language version for simplicity.
+
+Use the company-approved modern Node.js LTS runtime.
+
+New JavaScript features are not automatically approved merely because the runtime supports them.
+
+The allowed JavaScript subset is defined by this standard.
+
+
+31. GENERAL DESIGN RULES
+------------------------
+Prefer:
+- explicit code
+- small functions
+- simple data structures
+- plain objects
+- composition
+- early returns
+- obvious control flow
+- standard platform APIs
+- one established solution for common problems
+
+Avoid:
+- clever code
+- hidden behavior
+- unnecessary abstractions
+- deep inheritance
+- metaprogramming
+- magic initialization
+- multiple competing styles
+- unnecessary dependencies
+- minimizing line count at the expense of clarity
+
+
+32. DECISION RULE
+-----------------
+When deciding whether a JavaScript feature or coding style belongs in team code, ask:
+
+    Does this provide a capability we genuinely need?
+
+    Or does it mostly provide another way to express something we can already express clearly?
+
+If it mainly increases representational freedom without adding meaningful capability, prefer not to use it.
+
+
+33. FINAL PRINCIPLE
+-------------------
+The purpose of this standard is not to make JavaScript look like Go.
+
+The purpose is to apply the same philosophy:
+
+    Fewer choices.
+    Fewer surprises.
+    Less magic.
+    More consistency.
+    More explicit behavior.
+    Boring code is good code.
+
+The ideal result is that code written by different team members looks like it was written by the same team.

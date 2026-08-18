@@ -11,9 +11,14 @@
     "build": "node scripts/build.mjs",
     "zip": "node scripts/build.mjs --zip",
     "icons": "node scripts/gen-icons.mjs",
+    "lint": "eslint .",
+    "format": "eslint . --fix",
+    "check": "eslint .",
     "postinstall": "node scripts/postinstall.mjs"
   },
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^10.8.1",
     "vite": "^5.4.0"
   },
   "dependencies": {
