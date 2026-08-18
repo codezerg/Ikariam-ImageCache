@@ -1,25 +1,68 @@
 import browser from "../lib/browser.js";
 import { MSG } from "../lib/messages.js";
-import { DEFAULT_DENY, isDenied } from "../lib/patterns.js";
+import { DEFAULT_DENY, isDenied, requestDomainFor } from "../lib/patterns.js";
 
 function byId(id)
 {
     return document.getElementById(id);
 }
 
-async function cachedUrls()
+/**
+ * A rule matches on domain plus path, so that pair is what decides whether an
+ * observed image is one we ship. Keying on the whole URL would never match — a
+ * rule stores no host — and keying on the path alone would let one domain claim
+ * another's image.
+ */
+function keyForRule(rule)
 {
+    const condition = rule.condition;
+    if (condition === undefined)
+    {
+        return null;
+    }
+    return `${condition.requestDomains[0]}|${condition.urlFilter}`;
+}
+
+/** The same key for an observed URL, or null when the URL will not parse. */
+function keyForUrl(url)
+{
+    try
+    {
+        return `${requestDomainFor(url)}|${new URL(url).pathname}`;
+    }
+    catch
+    {
+        return null;
+    }
+}
+
+async function cachedKeys()
+{
+    const keys = new Set();
     try
     {
         const res = await fetch(browser.runtime.getURL("rules/redirects.json"));
         const rules = await res.json();
-        // urlFilter is stored as "|<url>" — strip the anchor to get the URL back.
-        return new Set(rules.map((r) => (r.condition?.urlFilter || "").replace(/^\|/, "")));
+        for (const rule of rules)
+        {
+            const key = keyForRule(rule);
+            if (key !== null)
+            {
+                keys.add(key);
+            }
+        }
     }
     catch
     {
-        return new Set();
+        // No ruleset shipped, or it is malformed — report nothing as cached.
     }
+    return keys;
+}
+
+function toRow(url, entry, cached)
+{
+    const key = keyForUrl(url);
+    return { url, ...entry, cached: key !== null && cached.has(key) };
 }
 
 function shorten(url)
@@ -40,11 +83,11 @@ async function render()
     const [stats, status, cached] = await Promise.all([
         browser.runtime.sendMessage({ type: MSG.GET_STATS }),
         browser.runtime.sendMessage({ type: MSG.GET_STATUS }),
-        cachedUrls(),
+        cachedKeys(),
     ]);
 
     const rows = Object.entries(stats || {})
-        .map(([url, s]) => ({ url, ...s, cached: cached.has(url) }))
+        .map(([url, entry]) => toRow(url, entry, cached))
         .sort((a, b) => b.count - a.count);
 
     byId("status").textContent = status.rulesetEnabled
