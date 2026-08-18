@@ -1,19 +1,39 @@
 # Ikariam Image Cache
 
-A Chrome and Firefox extension that bundles Ikariam's ~1200 skin images into the
-extension package and serves them from disk, so the game stops re-downloading
-them.
+Makes Ikariam load faster by keeping its graphics on your computer.
+
+Ikariam has about 1200 small images — buttons, backgrounds, icons, the city
+view. Its server hands them over slowly, and makes your browser fetch them all
+over again roughly once a day. That is the flicker, and the waiting.
+
+This extension keeps its own copy of those images and gives them to the game
+instantly, straight from your disk. Nothing is downloaded while you play.
 
 One codebase, two builds: **Chrome** (and Edge) and **Firefox**.
 
 > No game artwork is stored in this repository. `npm run scrape` downloads the
 > images from your own game server at build time, into a gitignored directory.
 
-## Why
+## Why it is slow in the first place
 
-Ikariam's game servers are slow at serving static assets, for two reasons.
+Two separate problems, and they compound.
 
-**No HTTP/2, no keep-alive.** Measured against `s74-en.ikariam.gameforge.com`:
+**Every image costs a new connection.** Normally a browser opens one connection
+and reuses it for many images. Ikariam's server refuses that, so each image pays
+the full setup cost — about 0.79 seconds — and the browser can only do six at a
+time. For 1200 images that is roughly **160 seconds** of waiting on connections
+alone.
+
+**The images expire every day.** Once a day the browser throws them all away and
+starts over, which triggers the whole 160 seconds again.
+
+The extension sidesteps both: the images never expire and never travel over the
+network, because they are already on your disk.
+
+<details>
+<summary>The measurements behind that</summary>
+
+Measured against `s74-en.ikariam.gameforge.com`:
 
 ```
 s74-en.ikariam.gameforge.com   ALPN -> http/1.1   (h2 offered, refused)
@@ -47,10 +67,22 @@ Once a day, every image expires at once. Those revalidations are *not* cheap
 connection closed. So each expiry detonates into another few minutes of
 connection churn, as does any cache eviction.
 
+</details>
+
 ## How it works
 
-Every image is bundled into the extension. A `declarativeNetRequest` ruleset
-redirects each game image request to the local copy:
+The images are stored inside the extension. Whenever the game asks for one, the
+extension quietly hands over its own copy instead of letting the request reach
+the internet.
+
+Because the request never leaves your computer, there is nothing to expire and
+nothing to wait for.
+
+<details>
+<summary>The technical version</summary>
+
+A `declarativeNetRequest` ruleset redirects each game image request to the
+packaged copy:
 
 ```
 https://s74-en.ikariam.gameforge.com/cdn/all/both/layout/bg_contentBox01.png
@@ -72,6 +104,8 @@ rewritten `Cache-Control` is not guaranteed to change what Chromium *stores*.
 Redirecting to a packaged file sidesteps the cache entirely.
 
 [dnr-cache]: https://github.com/GoogleChrome/developer.chrome.com/issues/3748
+
+</details>
 
 ## Build
 
