@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Ikariam Helper</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Ikariam Helper</h1>
+      <p id="status" class="status">Loading…</p>
+    </header>
+
+    <section class="summary">
+      <div><strong id="uniqueCount">0</strong><span>unique images</span></div>
+      <div><strong id="loadCount">0</strong><span>total loads</span></div>
+      <div><strong id="cachedCount">0</strong><span>served locally</span></div>
+    </section>
+
+    <table id="table">
+      <thead>
+        <tr><th>Image</th><th class="num">Loads</th><th class="num">Cached</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p id="empty" class="empty">No images recorded yet. Open the game and play for a minute, then reopen this popup.</p>
+
+    <footer>
+      <button id="download">Download safe list</button>
+      <button id="clear" class="secondary">Clear</button>
+      <button id="options" class="secondary">Options</button>
+    </footer>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

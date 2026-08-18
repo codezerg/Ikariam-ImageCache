@@ -1,0 +1,12 @@
+{
+  "$comment": "Where to discover image URLs. Any Ikariam server works — the /cdn/ paths are identical across all of them. Override at the CLI: npm run discover -- --server=https://s12-de.ikariam.gameforge.com --lang=de",
+  "server": "https://s74-en.ikariam.gameforge.com",
+  "lang": "en",
+  "dir": "ltr",
+  "css": [
+    "skin/compiled-{dir}-common_0.css",
+    "skin/compiled-{dir}-common_1.css",
+    "skin/compiled-{lang}-city.css",
+    "skin/compiled-{lang}-island.css"
+  ]
+}

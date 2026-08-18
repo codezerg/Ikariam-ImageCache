@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Ikariam Helper — Options</title>
+    <link rel="stylesheet" href="../popup/popup.css" />
+    <style>
+      body { width: auto; max-width: 720px; padding: 24px; }
+      .row { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
+      .row label { flex: 1; }
+      code { background: rgba(128,128,128,.15); padding: 1px 5px; border-radius: 3px; }
+      ol { padding-left: 20px; }
+      li { margin: 6px 0; }
+    </style>
+  </head>
+  <body>
+    <h1>Ikariam Helper</h1>
+
+    <div class="row">
+      <label for="toggle">
+        <strong>Serve bundled images locally</strong><br />
+        <span id="ruleInfo" class="status">…</span>
+      </label>
+      <input type="checkbox" id="toggle" />
+    </div>
+
+    <h2 style="font-size:14px">Adding more images</h2>
+    <ol>
+      <li>Play the game normally — the extension records every image the page loads.</li>
+      <li>Open the popup and click <strong>Download safe list</strong>.</li>
+      <li>Save it over <code>safelist.json</code> in the repo.</li>
+      <li>Run <code>npm run scrape</code> to download those images into <code>src/assets/</code> and regenerate the redirect rules.</li>
+      <li>Run <code>npm run build</code> and reload the extension.</li>
+    </ol>
+    <p class="status">
+      Images are bundled into the extension package, so they load from disk with no
+      network request at all. Editing a file in <code>src/assets/</code> replaces that
+      image in the game.
+    </p>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

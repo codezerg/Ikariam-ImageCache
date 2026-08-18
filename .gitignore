@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.zip
+
+# Game artwork is downloaded at build time, never committed.
+src/assets/
+
+# Generated from safelist.json by scrape-assets.mjs.
+src/rules/redirects.json

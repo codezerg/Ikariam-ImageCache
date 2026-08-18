@@ -1,0 +1,30 @@
+{
+  "name": "ikariam-image-cache",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Chrome/Firefox extension that bundles Ikariam skin images into the extension and serves them locally.",
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/discover.mjs && node scripts/scrape-assets.mjs && node scripts/build.mjs",
+    "discover": "node scripts/discover.mjs",
+    "scrape": "node scripts/scrape-assets.mjs",
+    "build": "node scripts/build.mjs",
+    "zip": "node scripts/build.mjs --zip",
+    "icons": "node scripts/gen-icons.mjs",
+    "postinstall": "node scripts/postinstall.mjs"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "webextension-polyfill": "^0.12.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codezerg/Ikariam-ImageCache.git"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
