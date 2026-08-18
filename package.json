@@ -2,7 +2,7 @@
   "name": "ikariam-image-cache",
   "version": "0.1.0",
   "private": false,
-  "description": "Chrome/Firefox extension that bundles Ikariam skin images into the extension and serves them locally.",
+  "description": "Chrome/Firefox extension that bundles Ikariam skin images into the extension and serves them locally. The game server has no HTTP/2 and no keep-alive, so every image costs a fresh TCP+TLS handshake (~0.79s), and a 24h Cache-Control lifetime re-triggers it daily.",
   "type": "module",
   "scripts": {
     "setup": "node scripts/discover.mjs && node scripts/scrape-assets.mjs && node scripts/build.mjs",
