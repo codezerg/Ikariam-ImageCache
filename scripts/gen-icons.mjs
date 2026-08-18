@@ -17,8 +17,10 @@ const outDir = join(root, 'src/icons');
 const SIZES = [16, 32, 48, 128];
 const SS = 4; // supersampling factor per axis
 
-const SLATE = [52, 73, 94];
-const WHITE = [255, 255, 255];
+// Ikariam's own palette, taken by frequency from its compiled stylesheets.
+const BROWN = [0x54, 0x2c, 0x0f]; // #542c0f  frames and text
+const CREAM = [0xfa, 0xea, 0xc6]; // #faeac6  parchment
+const GOLD = [0xe4, 0xb8, 0x73]; // #e4b873  the game's accent
 
 // ---------------------------------------------------------------- geometry --
 
@@ -58,6 +60,8 @@ function geometry(size) {
     card: small ? [0.15, 0.24, 0.85, 0.76] : [0.17, 0.25, 0.83, 0.75],
     cardRadius: small ? 0.035 : 0.045,
     sun: small ? [0.305, 0.365, 0.062] : [0.315, 0.375, 0.055],
+    // Gold against cream is too low-contrast to survive a 2px sun.
+    sunColor: small ? BROWN : GOLD,
     peaks: small
       ? [[[0.36, 0.76], [0.60, 0.48], [0.85, 0.76]]]
       : [
@@ -70,12 +74,12 @@ function geometry(size) {
 /** Colour and coverage at one sample point, composited front to back. */
 function sample(x, y, g) {
   if (!inRoundRect(x, y, g.inset, g.inset, 1 - g.inset, 1 - g.inset, g.radius)) return null;
-  if (!inRoundRect(x, y, ...g.card, g.cardRadius)) return SLATE;
+  if (!inRoundRect(x, y, ...g.card, g.cardRadius)) return BROWN;
 
-  // Inside the card: sun and peaks are knocked back out to the tile colour.
-  if (g.sun && (x - g.sun[0]) ** 2 + (y - g.sun[1]) ** 2 <= g.sun[2] ** 2) return SLATE;
-  if (g.peaks.some((p) => inPolygon(x, y, p))) return SLATE;
-  return WHITE;
+  // Inside the card: the sun takes the accent, the peaks knock back to the tile.
+  if (g.sun && (x - g.sun[0]) ** 2 + (y - g.sun[1]) ** 2 <= g.sun[2] ** 2) return g.sunColor;
+  if (g.peaks.some((p) => inPolygon(x, y, p))) return BROWN;
+  return CREAM;
 }
 
 // --------------------------------------------------------------------- PNG --
